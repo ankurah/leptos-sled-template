@@ -14,8 +14,6 @@ serde        = { version = "1.0", features = ["derive"] }
 serde_json   = "1.0"
 wasm-bindgen = { version = "0.2", optional = true }
 
-tsify = { version = "0.4" }
-
 ##### patch - something is wrong with the uuid crate for wasm
 getrandom = { version = "0.3", features = ["wasm_js"] }
 chrono    = { version = "0.4", default-features = false, features = ["serde"] }
