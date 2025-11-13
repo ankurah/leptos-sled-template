@@ -11,6 +11,7 @@ use std::sync::{Arc, OnceLock};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::window;
 
+mod chat_debug_header;
 mod chat_scroll_manager;
 mod debug_overlay;
 mod editable_text_field;
