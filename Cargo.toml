@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [
+members = ["leptos-app",
     "model",
     "server",
     "wasm-bindings",
