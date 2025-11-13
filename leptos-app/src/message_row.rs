@@ -1,5 +1,5 @@
-use leptos::prelude::*;
 use leptos::ev::MouseEvent;
+use leptos::prelude::*;
 
 use ankurah::LiveQuery;
 use ankurah_signals::Get as AnkurahGet;
@@ -42,9 +42,8 @@ pub fn MessageRow(
         }
     };
 
-    let is_editing = move || {
-        editing_message.get().as_ref().map(|em| em.id().to_base64() == message_for_editing.id().to_base64()).unwrap_or(false)
-    };
+    let is_editing =
+        move || editing_message.get().as_ref().map(|em| em.id().to_base64() == message_for_editing.id().to_base64()).unwrap_or(false);
 
     let is_own_message = current_user_id_for_own.as_ref().map(|id| message_for_own.user().unwrap_or_default() == *id).unwrap_or(false);
 
@@ -100,4 +99,3 @@ pub fn MessageRow(
         </div>
     }
 }
-
