@@ -1,9 +1,9 @@
 use leptos::prelude::*;
 
-use ankurah::{Context, Node, policy::DEFAULT_CONTEXT as C, policy::PermissiveAgent};
+use ankurah::{Context, EntityId, Node, model::Mutable, policy::DEFAULT_CONTEXT as C, policy::PermissiveAgent};
 use ankurah_signals::{CurrentObserver, ReactiveGraphObserver};
 use ankurah_storage_indexeddb_wasm::IndexedDBStorageEngine;
-use {{crate_name}}_model::RoomView;
+use {{crate_name}}_model::{RoomView, User, UserView};
 use ankurah_websocket_client_wasm::WebsocketClient;
 use lazy_static::lazy_static;
 use send_wrapper::SendWrapper;
@@ -11,9 +11,16 @@ use std::sync::{Arc, OnceLock};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::window;
 
+mod debug_overlay;
+mod editable_text_field;
+mod header;
+mod message_context_menu;
 mod notification_manager;
+mod qr_code_modal;
 mod room_list;
 
+use debug_overlay::DebugOverlay;
+use header::Header;
 use notification_manager::NotificationManager;
 use room_list::RoomList;
 
@@ -74,13 +81,73 @@ async fn initialize() {
 #[component]
 pub fn App() -> impl IntoView {
     // Build the rooms LiveQuery from the global context.
-    let rooms = ctx().query::<RoomView>("true").expect("failed to create RoomView LiveQuery");
+    let rooms = ctx().query::<RoomView>("true ORDER BY name ASC").expect("failed to create RoomView LiveQuery");
 
     // UI-local state for selected room (Leptos signal, not Ankurah).
     let selected_room = RwSignal::new(None::<RoomView>);
 
+    // UI-local state for current user (Leptos signal).
+    let current_user = RwSignal::new(None::<UserView>);
+
+    // Initialize user asynchronously
+    Effect::new({
+        let current_user = current_user.clone();
+        move |_| {
+            spawn_local(async move {
+                match ensure_user().await {
+                    Ok(user) => current_user.set(Some(user)),
+                    Err(e) => tracing::error!("Failed to initialize user: {}", e),
+                }
+            });
+        }
+    });
+
     // Stub notification manager for unread counts.
     let notification_manager = NotificationManager::new();
 
-    view! { <RoomList rooms=rooms selected_room=selected_room notification_manager=notification_manager /> }
+    view! {
+        <DebugOverlay />
+
+        <div class="container">
+            <Header current_user />
+
+            <div class="mainContent">
+                <RoomList rooms selected_room notification_manager />
+                // TODO: <Chat room=selected_room />
+            </div>
+        </div>
+    }
+}
+
+const STORAGE_KEY_USER_ID: &str = "{{crate_name}}_user_id";
+
+/// Ensures a user exists, creating one if necessary.
+/// Stores the user ID in localStorage for persistence across sessions.
+async fn ensure_user() -> Result<UserView, Box<dyn std::error::Error>> {
+    let context = ctx();
+
+    // Check localStorage for existing user
+    if let Some(storage) = window().and_then(|w| w.local_storage().ok().flatten()) {
+        if let Ok(Some(stored_id)) = storage.get_item(STORAGE_KEY_USER_ID) {
+            if let Ok(entity_id) = EntityId::from_base64(&stored_id) {
+                if let Ok(user) = context.get::<UserView>(entity_id).await {
+                    return Ok(user);
+                }
+            }
+        }
+    }
+
+    // Create new user
+    let transaction = context.begin();
+    let random_suffix = (js_sys::Math::random() * 10000.0).floor() as u32;
+    let mutable = transaction.create(&User { display_name: format!("User-{}", random_suffix) }).await?;
+    let user = mutable.read();
+    transaction.commit().await?;
+
+    // Store user ID in localStorage
+    if let Some(storage) = window().and_then(|w| w.local_storage().ok().flatten()) {
+        let _ = storage.set_item(STORAGE_KEY_USER_ID, &user.id().to_base64());
+    }
+
+    Ok(user)
 }
