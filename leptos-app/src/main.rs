@@ -74,7 +74,7 @@ async fn initialize() {
 #[component]
 pub fn App() -> impl IntoView {
     // Build the rooms LiveQuery from the global context.
-    let rooms = ctx().query::<RoomView>("true").expect("failed to create RoomView LiveQuery");
+    let rooms = ctx().query::<RoomView>("true ORDER BY name ASC").expect("failed to create RoomView LiveQuery");
 
     // UI-local state for selected room (Leptos signal, not Ankurah).
     let selected_room = RwSignal::new(None::<RoomView>);
@@ -82,5 +82,16 @@ pub fn App() -> impl IntoView {
     // Stub notification manager for unread counts.
     let notification_manager = NotificationManager::new();
 
-    view! { <RoomList rooms=rooms selected_room=selected_room notification_manager=notification_manager /> }
+    view! {
+        // TODO: <DebugOverlay />
+
+        <div class="container">
+            // TODO: <Header />
+
+            <div class="mainContent">
+                <RoomList rooms selected_room notification_manager />
+                // TODO: <Chat room=selected_room />
+            </div>
+        </div>
+    }
 }
