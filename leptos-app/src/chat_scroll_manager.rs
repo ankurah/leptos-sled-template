@@ -46,6 +46,7 @@ impl Default for ScrollMetrics {
 /// - Auto-scroll in live mode when near bottom
 /// - Continuation-based pagination
 /// - Buffer management to prevent visible gaps
+// FIXME: Does this need an Arc<Inner>?
 pub struct ChatScrollManager {
     // Configuration (in fractional screen height units)
     min_row_px: f64,
@@ -187,11 +188,10 @@ impl ChatScrollManager {
     fn on_user_scroll(&mut self) {
         // TODO: Implement user scroll detection
     }
-
-    /// Clean up resources
-    pub fn destroy(&mut self) {
-        // TODO: Implement cleanup
-        tracing::info!("ChatScrollManager::destroy() - stub");
-    }
 }
 
+impl Drop for ChatScrollManager {
+    fn drop(&mut self) {
+        tracing::info!("ChatScrollManager::drop() - stub");
+    }
+}
