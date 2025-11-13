@@ -1568,6 +1568,7 @@ dependencies = [
  "ankurah-template-model",
  "ankurah-websocket-client-wasm",
  "console_error_panic_hook",
+ "js-sys",
  "lazy_static",
  "leptos",
  "qrcode",

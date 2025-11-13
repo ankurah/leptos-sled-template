@@ -1,9 +1,9 @@
 use leptos::prelude::*;
 
-use ankurah::{Context, Node, policy::DEFAULT_CONTEXT as C, policy::PermissiveAgent};
+use ankurah::{Context, EntityId, Node, model::Mutable, policy::DEFAULT_CONTEXT as C, policy::PermissiveAgent};
 use ankurah_signals::{CurrentObserver, ReactiveGraphObserver};
 use ankurah_storage_indexeddb_wasm::IndexedDBStorageEngine;
-use ankurah_template_model::RoomView;
+use ankurah_template_model::{RoomView, User, UserView};
 use ankurah_websocket_client_wasm::WebsocketClient;
 use lazy_static::lazy_static;
 use send_wrapper::SendWrapper;
@@ -13,12 +13,14 @@ use web_sys::window;
 
 mod debug_overlay;
 mod editable_text_field;
+mod header;
 mod message_context_menu;
 mod notification_manager;
 mod qr_code_modal;
 mod room_list;
 
 use debug_overlay::DebugOverlay;
+use header::Header;
 use notification_manager::NotificationManager;
 use room_list::RoomList;
 
@@ -84,6 +86,22 @@ pub fn App() -> impl IntoView {
     // UI-local state for selected room (Leptos signal, not Ankurah).
     let selected_room = RwSignal::new(None::<RoomView>);
 
+    // UI-local state for current user (Leptos signal).
+    let current_user = RwSignal::new(None::<UserView>);
+
+    // Initialize user asynchronously
+    Effect::new({
+        let current_user = current_user.clone();
+        move |_| {
+            spawn_local(async move {
+                match ensure_user().await {
+                    Ok(user) => current_user.set(Some(user)),
+                    Err(e) => tracing::error!("Failed to initialize user: {}", e),
+                }
+            });
+        }
+    });
+
     // Stub notification manager for unread counts.
     let notification_manager = NotificationManager::new();
 
@@ -91,7 +109,7 @@ pub fn App() -> impl IntoView {
         <DebugOverlay />
 
         <div class="container">
-            // TODO: <Header />
+            <Header current_user />
 
             <div class="mainContent">
                 <RoomList rooms selected_room notification_manager />
@@ -99,4 +117,37 @@ pub fn App() -> impl IntoView {
             </div>
         </div>
     }
+}
+
+const STORAGE_KEY_USER_ID: &str = "ankurah_template_user_id";
+
+/// Ensures a user exists, creating one if necessary.
+/// Stores the user ID in localStorage for persistence across sessions.
+async fn ensure_user() -> Result<UserView, Box<dyn std::error::Error>> {
+    let context = ctx();
+
+    // Check localStorage for existing user
+    if let Some(storage) = window().and_then(|w| w.local_storage().ok().flatten()) {
+        if let Ok(Some(stored_id)) = storage.get_item(STORAGE_KEY_USER_ID) {
+            if let Ok(entity_id) = EntityId::from_base64(&stored_id) {
+                if let Ok(user) = context.get::<UserView>(entity_id).await {
+                    return Ok(user);
+                }
+            }
+        }
+    }
+
+    // Create new user
+    let transaction = context.begin();
+    let random_suffix = (js_sys::Math::random() * 10000.0).floor() as u32;
+    let mutable = transaction.create(&User { display_name: format!("User-{}", random_suffix) }).await?;
+    let user = mutable.read();
+    transaction.commit().await?;
+
+    // Store user ID in localStorage
+    if let Some(storage) = window().and_then(|w| w.local_storage().ok().flatten()) {
+        let _ = storage.set_item(STORAGE_KEY_USER_ID, &user.id().to_base64());
+    }
+
+    Ok(user)
 }

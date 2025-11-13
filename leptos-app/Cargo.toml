@@ -12,7 +12,8 @@ ankurah-storage-indexeddb-wasm = "0.6.8"
 ankurah-signals = { version = "0.6.8", features = ["reactive-graph"] }
 wasm-bindgen-futures = "0.4"
 ankurah-websocket-client-wasm = "0.6.8"
-web-sys = { version = "0.3", features = ["Window", "Location", "UrlSearchParams", "Url", "History", "Element", "DomRect", "Node", "EventTarget", "HtmlElement"] }
+web-sys = { version = "0.3", features = ["Window", "Location", "UrlSearchParams", "Url", "History", "Element", "DomRect", "Node", "EventTarget", "HtmlElement", "Storage"] }
+js-sys = "0.3"
 tracing-wasm = "0.2.1"
 tracing = "0.1.41"
 lazy_static = "1.5.0"
