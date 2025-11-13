@@ -11,9 +11,11 @@ use std::sync::{Arc, OnceLock};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::window;
 
+mod debug_overlay;
 mod notification_manager;
 mod room_list;
 
+use debug_overlay::DebugOverlay;
 use notification_manager::NotificationManager;
 use room_list::RoomList;
 
@@ -83,7 +85,7 @@ pub fn App() -> impl IntoView {
     let notification_manager = NotificationManager::new();
 
     view! {
-        // TODO: <DebugOverlay />
+        <DebugOverlay />
 
         <div class="container">
             // TODO: <Header />
