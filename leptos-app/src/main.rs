@@ -15,6 +15,7 @@ mod debug_overlay;
 mod editable_text_field;
 mod header;
 mod message_context_menu;
+mod message_row;
 mod notification_manager;
 mod qr_code_modal;
 mod room_list;
