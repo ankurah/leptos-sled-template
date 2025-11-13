@@ -7,7 +7,7 @@ import {
     RoomView,
     UserView,
     MessageView,
-} from "ankurah-template-wasm-bindings";
+} from "{{project-name}}-wasm-bindings";
 import { MessageRow } from "./MessageRow";
 import { MessageInput } from "./MessageInput";
 import { ChatDebugHeader } from "./ChatDebugHeader";
@@ -67,7 +67,7 @@ export const Chat: React.FC<ChatProps> = signalObserver(({ room, currentUser, no
                     className="debugToggle"
                     onClick={toggleDebug}
                     title={showDebug ? "Hide debug info" : "Show debug info"}
-                    style={{ opacity: 0.35 }}
+                    style={% raw %}{{opacity: 0.35}}{% endraw %}
                 >
                     {showDebug ? "▼" : "▲"}
                 </button>

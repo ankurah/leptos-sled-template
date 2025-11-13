@@ -4,7 +4,7 @@ use web_sys::{KeyboardEvent, window};
 
 use ankurah::{LiveQuery, model::Mutable};
 use ankurah_signals::Get as AnkurahGet;
-use ankurah_template_model::{Room, RoomView};
+use {{crate_name}}_model::{Room, RoomView};
 
 use crate::{ctx, notification_manager::NotificationManager};
 

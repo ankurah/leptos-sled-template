@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use ankurah::{Context, Node, policy::DEFAULT_CONTEXT as C, policy::PermissiveAgent};
 use ankurah_signals::{CurrentObserver, ReactiveGraphObserver};
 use ankurah_storage_indexeddb_wasm::IndexedDBStorageEngine;
-use ankurah_template_model::RoomView;
+use {{crate_name}}_model::RoomView;
 use ankurah_websocket_client_wasm::WebsocketClient;
 use lazy_static::lazy_static;
 use send_wrapper::SendWrapper;
@@ -46,7 +46,7 @@ fn main() {
 
 async fn initialize() {
     // Open IndexedDB-backed storage and create a Node.
-    let storage = IndexedDBStorageEngine::open("ankurah_template_app").await.expect("failed to open IndexedDB storage");
+    let storage = IndexedDBStorageEngine::open("{{crate_name}}_app").await.expect("failed to open IndexedDB storage");
     let node = Node::new(Arc::new(storage), PermissiveAgent::new());
 
     // Build WebSocket URL based on current window location (same pattern as wasm-bindings).

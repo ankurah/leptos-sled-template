@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useLayoutEffect } from "react";
-import { MessageView, JsValueMut, ctx } from "ankurah-template-wasm-bindings";
+import { MessageView, JsValueMut, ctx } from "{{project-name}}-wasm-bindings";
 import "./MessageContextMenu.css";
 
 interface MessageContextMenuProps {
@@ -95,7 +95,7 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({
         <div
             ref={menuRef}
             className="contextMenu"
-            style={{ position: "fixed", left: `${position.x}px`, top: `${position.y}px` }}
+            style={% raw %}{{position: "fixed", left: `${position.x}px`, top: `${position.y}px`}}{% endraw %}
         >
             <button
                 className="contextMenuItem"

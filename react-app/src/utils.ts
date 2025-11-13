@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useObserve, User, ctx, EntityId, UserView, JsValueMut, JsValueRead } from "ankurah-template-wasm-bindings";
+import { useObserve, User, ctx, EntityId, UserView, JsValueMut, JsValueRead } from "{{project-name}}-wasm-bindings";
 
 export function signalObserver<T>(fc: React.FC<T>): React.FC<T> {
     return (props: T) => {
@@ -22,7 +22,7 @@ export function useAsync<T>(fn: () => Promise<T>, deps: React.DependencyList): T
 }
 
 // LocalStorage keys
-const STORAGE_KEY_USER_ID = "ankurah_template_user_id";
+const STORAGE_KEY_USER_ID = "{{crate_name}}_user_id";
 
 export function ensureUser(): JsValueRead<UserView | null> {
     const [userMut, userRead] = JsValueMut.newPair<UserView | null>(null);

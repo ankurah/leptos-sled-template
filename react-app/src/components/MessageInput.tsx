@@ -7,7 +7,7 @@ import {
     RoomView,
     UserView,
     JsValueMut,
-} from "ankurah-template-wasm-bindings";
+} from "{{project-name}}-wasm-bindings";
 import { signalObserver } from "../utils";
 import { ChatScrollManager } from "../ChatScrollManager";
 import "./MessageInput.css";
@@ -151,7 +151,7 @@ export const MessageInput: React.FC<MessageInputProps> = signalObserver(({ room,
                         editingMessageMut.set(null);
                         setMessageInput("");
                     }}
-                    style={{ marginLeft: '8px' }}
+                    style={% raw %}{{marginLeft: '8px'}}{% endraw %}
                 >
                     Cancel
                 </button>

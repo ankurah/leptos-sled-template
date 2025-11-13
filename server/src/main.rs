@@ -1,6 +1,6 @@
 use ankurah::{policy::DEFAULT_CONTEXT as c, Node, PermissiveAgent};
 use ankurah_storage_sled::SledStorageEngine;
-use ankurah_template_model::{Room, RoomView};
+use {{crate_name}}_model::{Room, RoomView};
 use ankurah_websocket_server::WebsocketServer;
 use anyhow::Result;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt().with_max_level(Level::INFO).init(); // initialize tracing
 
     // Initialize storage engine
-    let storage = SledStorageEngine::with_homedir_folder(".ankurah-template")?;
+    let storage = SledStorageEngine::with_homedir_folder(".{{project-name}}")?;
     let node = Node::new_durable(Arc::new(storage), PermissiveAgent::new());
 
     node.system.wait_loaded().await;
