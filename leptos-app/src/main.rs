@@ -12,6 +12,7 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::window;
 
 mod debug_overlay;
+mod editable_text_field;
 mod message_context_menu;
 mod notification_manager;
 mod qr_code_modal;
