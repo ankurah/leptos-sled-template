@@ -8,4 +8,3 @@ pub fn DebugOverlay() -> impl IntoView {
     // TODO: Implement width debugging if needed
     ()
 }
-

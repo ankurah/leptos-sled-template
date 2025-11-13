@@ -14,6 +14,7 @@ use web_sys::window;
 mod debug_overlay;
 mod message_context_menu;
 mod notification_manager;
+mod qr_code_modal;
 mod room_list;
 
 use debug_overlay::DebugOverlay;

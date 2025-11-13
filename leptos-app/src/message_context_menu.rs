@@ -1,7 +1,7 @@
-use leptos::prelude::*;
 use leptos::ev::MouseEvent as LeptosMouseEvent;
-use web_sys::{window, KeyboardEvent, MouseEvent};
+use leptos::prelude::*;
 use wasm_bindgen::JsCast;
+use web_sys::{KeyboardEvent, MouseEvent, window};
 
 use ankurah::model::Mutable;
 use ankurah_template_model::MessageView;
@@ -142,4 +142,3 @@ pub fn MessageContextMenu(
         </div>
     }
 }
-
