@@ -11,6 +11,7 @@ use std::sync::{Arc, OnceLock};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::window;
 
+mod chat;
 mod chat_debug_header;
 mod chat_scroll_manager;
 mod debug_overlay;
@@ -23,6 +24,7 @@ mod notification_manager;
 mod qr_code_modal;
 mod room_list;
 
+use chat::Chat;
 use debug_overlay::DebugOverlay;
 use header::Header;
 use notification_manager::NotificationManager;
@@ -116,8 +118,8 @@ pub fn App() -> impl IntoView {
             <Header current_user />
 
             <div class="mainContent">
-                <RoomList rooms selected_room notification_manager />
-                // TODO: <Chat room=selected_room />
+                <RoomList rooms selected_room notification_manager=notification_manager.clone() />
+                <Chat room=selected_room current_user=current_user notification_manager=notification_manager />
             </div>
         </div>
     }
