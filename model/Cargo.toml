@@ -6,7 +6,7 @@ publish = false
 
 [features]
 default = []
-wasm    = ["dep:wasm-bindgen", "ankurah/wasm", "ankurah/react"]
+wasm    = ["dep:wasm-bindgen", "ankurah/wasm"]
 
 [dependencies]
 ankurah      = { version = "0.6.8", features = ["derive"] }

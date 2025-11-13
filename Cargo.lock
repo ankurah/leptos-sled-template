@@ -23,8 +23,6 @@ dependencies = [
 [[package]]
 name = "ankql"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5844be83984ce63adfa33f8e33d130a0179b02307a7b946f9ae3fe155993b18d"
 dependencies = [
  "base64",
  "log",
@@ -40,8 +38,6 @@ dependencies = [
 [[package]]
 name = "ankurah"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e28f553afae561b8f613abb5ea8f155c686c23ae68c197190c0fe359571b131f"
 dependencies = [
  "ankql",
  "ankurah-core",
@@ -60,8 +56,6 @@ dependencies = [
 [[package]]
 name = "ankurah-core"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3fc1150219b7865eedf86f78b09356ddd594688a2d518d6b1e945d5f84bff3a"
 dependencies = [
  "ankql",
  "ankurah-derive",
@@ -98,8 +92,6 @@ dependencies = [
 [[package]]
 name = "ankurah-derive"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b40d0e6f717d401f25b347f7b8f563b446bba8d8e1c94618b13f5a318db90a21"
 dependencies = [
  "ankql",
  "proc-macro2",
@@ -114,8 +106,6 @@ dependencies = [
 [[package]]
 name = "ankurah-proto"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d5d0d7410cc2f5e1bf89464d193adbe92e42acff0907205495d51ff7b5a263f"
 dependencies = [
  "ankql",
  "anyhow",
@@ -134,11 +124,9 @@ dependencies = [
 [[package]]
 name = "ankurah-signals"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7cfafc0d42e30afbde39c0b5dfccb1a88d6e63ec6231eb1598606ccdcd5bd92e"
 dependencies = [
  "js-sys",
- "send_wrapper 0.6.0",
+ "reactive_graph",
  "tokio",
  "tracing",
  "wasm-bindgen",
@@ -148,8 +136,6 @@ dependencies = [
 [[package]]
 name = "ankurah-storage-common"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75ab7e50859e10732d6011438565cff5f50fe8ff2a8fc8b0448ebd13f94936c1"
 dependencies = [
  "ankql",
  "ankurah-core",
@@ -162,8 +148,6 @@ dependencies = [
 [[package]]
 name = "ankurah-storage-indexeddb-wasm"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca4026cf14812d3d5a9b1c1eddad1331457b18000c910aae9845518cb42d3ca0"
 dependencies = [
  "ankql",
  "ankurah-core",
@@ -198,8 +182,6 @@ dependencies = [
 [[package]]
 name = "ankurah-storage-sled"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66002311eb1401725b28e7e5c97d48786883b703405e08a2a8b2bf7c041106c9"
 dependencies = [
  "ankql",
  "ankurah-core",
@@ -249,33 +231,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "ankurah-template-wasm-bindings"
-version = "0.6.0"
-dependencies = [
- "ankurah",
- "ankurah-signals",
- "ankurah-storage-indexeddb-wasm",
- "ankurah-template-model",
- "ankurah-websocket-client-wasm",
- "console_error_panic_hook",
- "getrandom 0.3.4",
- "lazy_static",
- "once_cell",
- "send_wrapper 0.6.0",
- "tokio",
- "tracing",
- "tracing-wasm",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "wasm-logger",
- "web-sys",
-]
-
-[[package]]
 name = "ankurah-websocket-client-wasm"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbc4f70df2c81cbfa875f21b1a2f87312667c2efadb3031821d2a36f57bd3621"
 dependencies = [
  "ankurah",
  "ankurah-core",
@@ -306,8 +263,6 @@ dependencies = [
 [[package]]
 name = "ankurah-websocket-server"
 version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ac9bb6d468c60dd2cc43bf9f985a84b286263ccd2c590b3c19aa3f03840ff58"
 dependencies = [
  "ankurah-core",
  "ankurah-proto",
@@ -1583,8 +1538,20 @@ dependencies = [
 name = "leptos-app"
 version = "0.1.0"
 dependencies = [
+ "ankurah",
+ "ankurah-signals",
+ "ankurah-storage-indexeddb-wasm",
+ "ankurah-template-model",
+ "ankurah-websocket-client-wasm",
  "console_error_panic_hook",
+ "lazy_static",
  "leptos",
+ "send_wrapper 0.6.0",
+ "tracing",
+ "tracing-wasm",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
 ]
 
 [[package]]
@@ -3581,3 +3548,7 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[patch.unused]]
+name = "ankurah-storage-postgres"
+version = "0.6.8"

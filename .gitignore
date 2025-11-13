@@ -4,8 +4,7 @@
 Cargo.lock
 
 # WASM
-wasm-bindings/pkg/
-*.wasm
+leptos-app/dist
 
 # React
 react-app/node_modules/
