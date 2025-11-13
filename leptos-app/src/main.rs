@@ -12,6 +12,7 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::window;
 
 mod debug_overlay;
+mod message_context_menu;
 mod notification_manager;
 mod room_list;
 
