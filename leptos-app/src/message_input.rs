@@ -1,7 +1,6 @@
 use leptos::prelude::*;
 use web_sys::KeyboardEvent;
 
-use ankurah::model::Mutable;
 use {{crate_name}}_model::{Message, MessageView, RoomView, UserView};
 
 use crate::{chat_scroll_manager::ChatScrollManager, ctx};
@@ -67,6 +66,7 @@ pub fn MessageInput(
             let room_id = room.id().to_base64();
             let user_id = user.id().to_base64();
             let input_text = input_text.clone();
+            let manager_clone = manager.clone();
 
             wasm_bindgen_futures::spawn_local(async move {
                 match (|| async {
@@ -89,8 +89,10 @@ pub fn MessageInput(
                     Ok(_) => {
                         tracing::info!("Message sent");
                         message_input.set(String::new());
-                        // TODO: Jump to live mode when manager is implemented
-                        // manager?.jump_to_live().await;
+                        // Jump to live mode after sending
+                        if let Some(m) = manager_clone {
+                            m.jump_to_live();
+                        }
                     }
                     Err(e) => tracing::error!("Failed to send message: {}", e),
                 }

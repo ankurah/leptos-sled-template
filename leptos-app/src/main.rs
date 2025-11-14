@@ -19,6 +19,7 @@ mod editable_text_field;
 mod header;
 mod message_context_menu;
 mod message_input;
+mod message_list;
 mod message_row;
 mod notification_manager;
 mod qr_code_modal;

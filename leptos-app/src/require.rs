@@ -12,10 +12,7 @@ impl<T> Require<T> for Result<T, JsValue> {
             let error_msg = if let Some(s) = e.as_string() {
                 s
             } else if let Some(obj) = e.dyn_ref::<js_sys::Object>() {
-                js_sys::JSON::stringify(obj)
-                    .ok()
-                    .and_then(|v| v.as_string())
-                    .unwrap_or_else(|| "[object]".to_string())
+                js_sys::JSON::stringify(obj).ok().and_then(|v| v.as_string()).unwrap_or_else(|| "[object]".to_string())
             } else {
                 format!("{:?}", e)
             };
@@ -39,4 +36,3 @@ impl<T> Require<T> for Result<Option<T>, JsValue> {
         }
     }
 }
-

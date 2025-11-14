@@ -115,4 +115,3 @@ pub fn ChatDebugHeader(manager: ChatScrollManager) -> impl IntoView {
         </div>
     }
 }
-

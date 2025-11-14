@@ -1,27 +1,78 @@
+use leptos::html::Div;
 use leptos::prelude::*;
 
-use ankurah::LiveQuery;
 use ankurah_signals::Get as AnkurahGet;
 use {{crate_name}}_model::{MessageView, RoomView, UserView};
 
 use crate::{
-    chat_debug_header::ChatDebugHeader, chat_scroll_manager::ChatScrollManager, ctx, message_input::MessageInput, message_row::MessageRow,
-    notification_manager::NotificationManager,
+    chat_debug_header::ChatDebugHeader, chat_scroll_manager::ChatScrollManager, ctx, message_input::MessageInput,
+    message_list::MessageList, notification_manager::NotificationManager,
 };
 
 /// Main chat component displaying messages, input, and scroll controls.
 /// Manages ChatScrollManager lifecycle and coordinates all chat sub-components.
 #[component]
-pub fn Chat(room: RwSignal<Option<RoomView>>, current_user: RwSignal<Option<UserView>>, notification_manager: NotificationManager) -> impl IntoView {
+pub fn Chat(
+    room: RwSignal<Option<RoomView>>,
+    current_user: RwSignal<Option<UserView>>,
+    notification_manager: NotificationManager,
+) -> impl IntoView {
     let show_debug = RwSignal::new(false);
     let editing_message = RwSignal::new(None::<MessageView>);
 
-    // TODO: Create ChatScrollManager when room changes
-    // For now, we'll create a dummy LiveQuery
-    let manager: Option<ChatScrollManager> = None;
+    // Create ChatScrollManager when room changes (wrapped in SendWrapper for Leptos compatibility)
+    let manager = RwSignal::new(None::<ChatScrollManager>);
+
+    // Update manager when room changes
+    Effect::new({
+        let manager = manager.clone();
+        let notification_manager = notification_manager.clone();
+        move |_| {
+            if let Some(current_room) = room.get() {
+                let room_id = current_room.id().to_base64();
+                let new_manager = ChatScrollManager::new(room_id, notification_manager.clone());
+                manager.set(Some(new_manager));
+            } else {
+                // Clean up old manager
+                if let Some(old_manager) = manager.get() {
+                    old_manager.destroy();
+                }
+                manager.set(None);
+            }
+        }
+    });
 
     // Query for all users
-    let users = ctx().query::<UserView>("").expect("failed to create UserView LiveQuery");
+    let users = ctx().query::<UserView>("true").expect("failed to create UserView LiveQuery");
+
+    let messages_container_ref = NodeRef::<Div>::new();
+
+    // Bind container to scroll manager after it's rendered
+    Effect::new({
+        let manager = manager.clone();
+        let messages_container_ref = messages_container_ref.clone();
+        move |_| {
+            if let Some(m) = manager.get() {
+                m.bind_container(messages_container_ref.get());
+            }
+        }
+    });
+
+    // Call after_layout when messages change
+    Effect::new({
+        let manager = manager.clone();
+        move |_| {
+            if let Some(m) = manager.get() {
+                // Track message changes
+                let _ = m.messages().get();
+                // Schedule after_layout on next tick
+                leptos::task::spawn_local(async move {
+                    leptos::task::tick().await;
+                    m.after_layout();
+                });
+            }
+        }
+    });
 
     view! {
         <Show
@@ -34,73 +85,83 @@ pub fn Chat(room: RwSignal<Option<RoomView>>, current_user: RwSignal<Option<User
                 }
             }
         >
-            {move || {
-                room.get().map(|current_room| {
-                    let current_user_id = current_user.get().map(|u| u.id().to_base64());
+            {
+                let room = room.clone();
+                let manager = manager.clone();
+                let current_user = current_user.clone();
+                let users = users.clone();
+                let editing_message = editing_message.clone();
+                let messages_container_ref = messages_container_ref.clone();
+                let show_debug = show_debug.clone();
+                move || room.get().and_then(|current_room| {
+                    manager.get().map(|mgr| {
+                        let current_room_for_input = current_room.clone();
+                        let current_user_id = current_user.get().map(|u| u.id().to_base64());
+                        let show_jump_to_current = !mgr.should_auto_scroll();
 
-                    view! {
-                        <div class="chatContainer">
-                            // Debug header (shown when show_debug is true)
-                            // TODO: Show ChatDebugHeader when manager is implemented
-                            // <Show when=move || show_debug.get() && manager.is_some()>
-                            //     {move || manager.as_ref().map(|m| view! { <ChatDebugHeader manager=m.clone() /> })}
-                            // </Show>
+                        // Clone manager for all usages before view! macro
+                        let mgr1 = mgr.clone();
+                        let mgr2 = mgr.clone();
+                        let mgr3 = mgr.clone();
+                        let mgr4 = mgr;
 
-                            // Debug toggle button
-                            // TODO: Show when manager is implemented
-                            // <Show when=move || manager.is_some()>
-                            //     <button
-                            //         class="debugToggle"
-                            //         on:click=move |_| show_debug.update(|v| *v = !*v)
-                            //         title=move || if show_debug.get() { "Hide debug info" } else { "Show debug info" }
-                            //         style="opacity: 0.35"
-                            //     >
-                            //         {move || if show_debug.get() { "▼" } else { "▲" }}
-                            //     </button>
-                            // </Show>
+                        view! {
+                            <div class="chatContainer">
+                                // Debug header
+                                <Show when=move || show_debug.get()>
+                                    {{
+                                        let mgr1 = mgr1.clone();
+                                        move || view! { <ChatDebugHeader manager=mgr1.clone() /> }
+                                    }}
+                                </Show>
 
-                            // Messages container
-                            <div class="messagesContainer">
-                                // TODO: Bind container to manager
-                                // TODO: Get message list from manager.items()
-                                // For now, show empty state
-                                <div class="emptyState">"No messages yet. Be the first to say hello!"</div>
+                                // Debug toggle button
+                                <button
+                                    class="debugToggle"
+                                    on:click=move |_| show_debug.update(|v| *v = !*v)
+                                    title=move || if show_debug.get() { "Hide debug info" } else { "Show debug info" }
+                                    style="opacity: 0.35;"
+                                >
+                                    {move || if show_debug.get() { "▼" } else { "▲" }}
+                                </button>
 
-                                // TODO: Map over messageList
-                                // <For
-                                //     each=move || message_list
-                                //     key=|message: &MessageView| message.id()
-                                //     children=move |message: MessageView| {
-                                //         view! {
-                                //             <MessageRow
-                                //                 message=message
-                                //                 users=users.clone()
-                                //                 current_user_id=current_user_id.clone()
-                                //                 editing_message=editing_message
-                                //             />
-                                //         }
-                                //     }
-                                // />
+                                // Messages container
+                                <div class="messagesContainer" node_ref=messages_container_ref>
+                                    <MessageList
+                                        messages=Signal::derive(move || mgr2.items())
+                                        users=users.clone()
+                                        current_user_id=current_user_id.clone()
+                                        editing_message=editing_message
+                                    />
+                                </div>
+
+                                // Jump to current button
+                                <Show when=move || show_jump_to_current>
+                                    {{
+                                        let mgr3 = mgr3.clone();
+                                        move || {
+                                            let mgr3 = mgr3.clone();
+                                            view! {
+                                                <button class="jumpToCurrent" on:click=move |_| mgr3.jump_to_live()>
+                                                    "Jump to Current ↓"
+                                                </button>
+                                            }
+                                        }
+                                    }}
+                                </Show>
+
+                                // Message input
+                                <MessageInput
+                                    room=current_room_for_input
+                                    current_user=current_user.get()
+                                    editing_message=editing_message
+                                    manager=mgr4
+                                />
                             </div>
-
-                            // Jump to current button (shown when not at bottom)
-                            // TODO: Show when manager.should_auto_scroll is false
-                            // <Show when=move || manager.as_ref().map(|m| !m.should_auto_scroll()).unwrap_or(false)>
-                            //     <button class="jumpToCurrent" on:click=move |_| {
-                            //         // TODO: manager.jump_to_live()
-                            //     }>
-                            //         "Jump to Current ↓"
-                            //     </button>
-                            // </Show>
-
-                            // Message input
-                            <MessageInput room=current_room current_user=current_user.get() editing_message=editing_message />
-                        </div>
-                    }
+                        }
+                    })
                 })
-            }}
+            }
         </Show>
     }
 }
-
-
