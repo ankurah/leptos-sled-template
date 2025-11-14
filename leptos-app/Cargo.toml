@@ -6,13 +6,17 @@ edition = "2024"
 [dependencies]
 leptos = { version = "0.8.12", features = ["csr"] }
 console_error_panic_hook = "0.1"
-ankurah = { version = "0.6.8", features = ["derive", "wasm"] }
+ankurah = { version = "0.7.0", features = ["derive", "wasm"] }
 {{project-name}}-model = { path = "../model", features = ["wasm"] }
-ankurah-storage-indexeddb-wasm = "0.6.8"
-ankurah-signals = { version = "0.6.8", features = ["reactive-graph"] }
+ankurah-storage-indexeddb-wasm = "0.7.0"
+ankurah-signals = { version = "0.7.0", features = ["reactive-graph"] }
 wasm-bindgen-futures = "0.4"
-ankurah-websocket-client-wasm = "0.6.8"
-web-sys = { version = "0.3", features = ["Window", "Location", "UrlSearchParams", "Url", "History", "Element", "DomRect", "Node", "EventTarget", "HtmlElement", "Storage"] }
+ankurah-websocket-client-wasm = "0.7.0"
+web-sys = { version = "0.3", features = [
+    "Window", "Location", "UrlSearchParams", "Url", "History", "Element", "DomRect", "Node", "EventTarget", "HtmlElement", "Storage",
+    "AudioContext", "AudioBuffer", "AudioBufferSourceNode", "GainNode", "AudioParam", "AudioNode",
+    "AudioDestinationNode", "AudioContextState", "Response", "Document"
+] }
 js-sys = "0.3"
 tracing-wasm = "0.2.1"
 tracing = "0.1.41"

@@ -31,13 +31,21 @@ pub fn Chat(
             if let Some(current_room) = room.get() {
                 let room_id = current_room.id().to_base64();
                 let new_manager = ChatScrollManager::new(room_id, notification_manager.clone());
-                manager.set(Some(new_manager));
+
+                // Clean up old manager before setting new one (use untracked to avoid loop)
+                manager.update_untracked(|old| {
+                    if let Some(old_manager) = old.take() {
+                        old_manager.destroy();
+                    }
+                    *old = Some(new_manager);
+                });
             } else {
                 // Clean up old manager
-                if let Some(old_manager) = manager.get() {
-                    old_manager.destroy();
-                }
-                manager.set(None);
+                manager.update_untracked(|old| {
+                    if let Some(old_manager) = old.take() {
+                        old_manager.destroy();
+                    }
+                });
             }
         }
     });
@@ -52,24 +60,38 @@ pub fn Chat(
         let manager = manager.clone();
         let messages_container_ref = messages_container_ref.clone();
         move |_| {
+            // Track manager changes, but don't track the container ref
             if let Some(m) = manager.get() {
-                m.bind_container(messages_container_ref.get());
+                // Use get_untracked to avoid creating a dependency on the NodeRef
+                m.bind_container(messages_container_ref.get_untracked());
             }
         }
     });
 
     // Call after_layout when messages change
+    // Note: We track the manager itself, and when it changes we set up a new effect for its messages
     Effect::new({
         let manager = manager.clone();
-        move |_| {
-            if let Some(m) = manager.get() {
-                // Track message changes
-                let _ = m.messages().get();
-                // Schedule after_layout on next tick
-                leptos::task::spawn_local(async move {
-                    leptos::task::tick().await;
-                    m.after_layout();
-                });
+        move |prev_count: Option<usize>| {
+            if let Some(m) = manager.get_untracked() {
+                // Track message changes by getting the count
+                let messages = m.messages();
+                let count = messages.get().len();
+
+                // Only call after_layout if count actually changed (not on first run)
+                if let Some(prev) = prev_count {
+                    if count != prev {
+                        let m = m.clone();
+                        leptos::task::spawn_local(async move {
+                            leptos::task::tick().await;
+                            m.after_layout();
+                        });
+                    }
+                }
+
+                count
+            } else {
+                0
             }
         }
     });

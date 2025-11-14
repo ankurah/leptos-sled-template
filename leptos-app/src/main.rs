@@ -110,8 +110,8 @@ pub fn App() -> impl IntoView {
         }
     });
 
-    // Stub notification manager for unread counts.
-    let notification_manager = NotificationManager::new();
+    // Create notification manager with rooms query and current user ID
+    let notification_manager = NotificationManager::new(rooms.clone(), current_user.get_untracked().map(|u| u.id().to_base64()));
 
     view! {
         <DebugOverlay />
