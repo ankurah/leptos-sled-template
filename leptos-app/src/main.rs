@@ -22,6 +22,7 @@ mod message_input;
 mod message_row;
 mod notification_manager;
 mod qr_code_modal;
+mod require;
 mod room_list;
 
 use chat::Chat;
