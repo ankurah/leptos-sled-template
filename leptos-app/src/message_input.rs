@@ -73,7 +73,13 @@ pub fn MessageInput(
                     let transaction = ctx().begin();
                     let timestamp = js_sys::Date::now() as i64;
                     let _msg = transaction
-                        .create(&Message { user: user_id.clone(), room: room_id.clone(), text: input_text.trim().to_string(), timestamp, deleted: false })
+                        .create(&Message {
+                            user: user_id.clone(),
+                            room: room_id.clone(),
+                            text: input_text.trim().to_string(),
+                            timestamp,
+                            deleted: false,
+                        })
                         .await?;
                     transaction.commit().await?;
                     Ok::<_, Box<dyn std::error::Error>>(())
@@ -99,17 +105,17 @@ pub fn MessageInput(
                 e.prevent_default();
                 handle_send_message();
             } else if e.key() == "Escape" && editing_message.get().is_some() {
-            e.prevent_default();
-            editing_message.set(None);
-            message_input.set(String::new());
-        } else if e.key() == "ArrowUp" && (e.meta_key() || e.ctrl_key()) {
-            e.prevent_default();
-            // TODO: Navigate to previous own message
-            tracing::info!("ArrowUp navigation - TODO");
-        } else if e.key() == "ArrowDown" && (e.meta_key() || e.ctrl_key()) && editing_message.get().is_some() {
-            e.prevent_default();
-            // TODO: Navigate to next own message
-            tracing::info!("ArrowDown navigation - TODO");
+                e.prevent_default();
+                editing_message.set(None);
+                message_input.set(String::new());
+            } else if e.key() == "ArrowUp" && (e.meta_key() || e.ctrl_key()) {
+                e.prevent_default();
+                // TODO: Navigate to previous own message
+                tracing::info!("ArrowUp navigation - TODO");
+            } else if e.key() == "ArrowDown" && (e.meta_key() || e.ctrl_key()) && editing_message.get().is_some() {
+                e.prevent_default();
+                // TODO: Navigate to next own message
+                tracing::info!("ArrowDown navigation - TODO");
             }
         }
     };
@@ -147,4 +153,3 @@ pub fn MessageInput(
         </div>
     }
 }
-

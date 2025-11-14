@@ -20,4 +20,11 @@ impl NotificationManager {
         // Stub: return empty map for now
         HashMap::new()
     }
+
+    /// Set the currently active room (for marking messages as read).
+    /// Pass None to clear the active room.
+    pub fn set_active_room(&self, _room_id: Option<String>) {
+        // Stub: will be implemented later
+        // This should mark all messages in the room as read
+    }
 }
